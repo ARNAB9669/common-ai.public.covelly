@@ -1,0 +1,552 @@
+:root {
+    --bg-color: #0a0a0a;
+    --panel-bg: #141414;
+    --panel-border: #262626;
+    --text-primary: #ffffff;
+    --text-secondary: #8a8a8a;
+    --accent: #ffffff;
+    --accent-glow: rgba(255, 255, 255, 0.15);
+    --user-msg: #262626;
+    --ai-msg: transparent;
+    --active-bg: #2a2a2a;
+}
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: 'Outfit', sans-serif;
+    background-color: var(--bg-color);
+    color: var(--text-primary);
+    height: 100vh;
+    overflow: hidden;
+}
+
+.app-container {
+    display: flex;
+    height: 100vh;
+    width: 100vw;
+}
+
+.glass-panel {
+    background: var(--panel-bg);
+    border: 1px solid var(--panel-border);
+}
+
+/*/ Sidebar /*/
+.sidebar {
+    width: 280px;
+    height: 100%;
+    padding: 24px;
+    display: flex;
+    flex-direction: column;
+    border-right: 1px solid var(--panel-border);
+    z-index: 10;
+}
+
+.brand {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 40px;
+}
+
+.logo-orb {
+    width: 28px;
+    height: 28px;
+    border-radius: 4px;
+    background: #ffffff;
+    box-shadow: 0 0 15px var(--accent-glow);
+}
+
+.brand h1 {
+    font-size: 20px;
+    font-weight: 500;
+    letter-spacing: 0.5px;
+}
+
+.section-title {
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: var(--text-secondary);
+    margin-bottom: 12px;
+    font-weight: 500;
+}
+
+.search-box {
+    margin-bottom: 12px;
+}
+
+.search-box input {
+    width: 100%;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid var(--panel-border);
+    color: var(--text-primary);
+    padding: 10px 12px;
+    border-radius: 8px;
+    font-family: inherit;
+    font-size: 13px;
+    outline: none;
+    transition: all 0.2s ease;
+}
+
+.search-box input:focus {
+    border-color: #555;
+    background: rgba(255, 255, 255, 0.08);
+}
+
+.filter-box {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 16px;
+    font-size: 12px;
+    color: var(--text-secondary);
+}
+
+.toggle-switch {
+    position: relative;
+    display: inline-block;
+    width: 32px;
+    height: 18px;
+}
+
+.toggle-switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background-color: #333;
+    transition: .2s;
+    border-radius: 18px;
+}
+
+.slider:before {
+    position: absolute;
+    content: "";
+    height: 12px;
+    width: 12px;
+    left: 3px;
+    bottom: 3px;
+    background-color: var(--text-secondary);
+    transition: .2s;
+    border-radius: 50%;
+}
+
+input:checked + .slider {
+    background-color: #fff;
+}
+
+input:checked + .slider:before {
+    transform: translateX(14px);
+    background-color: #000;
+}
+
+.model-selector {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    flex: 1;
+    overflow-y: auto;
+    padding-right: 4px;
+    margin-bottom: 8px;
+}
+
+.model-toggle {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 16px;
+    border-radius: 8px;
+    background: transparent;
+    border: 1px solid transparent;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.model-toggle:hover {
+    background: rgba(255, 255, 255, 0.03);
+}
+
+.model-toggle.active {
+    background: var(--active-bg);
+    border-color: #333;
+}
+
+.model-info {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.model-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: #333;
+    transition: background 0.2s ease;
+}
+
+.model-toggle.active .model-dot {
+    background: #fff;
+    box-shadow: 0 0 8px rgba(255, 255, 255, 0.8);
+}
+
+/*/ Main Area /*/
+.main-content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    background-color: var(--bg-color);
+}
+
+.chat-grid {
+    flex: 1;
+    padding: 24px;
+    display: grid;
+    gap: 24px;
+    overflow-y: auto;
+    padding-bottom: 120px; /*/ Space for input /*/
+}
+
+/*/ CSS Grid will be modified by JS based on active models /*/
+.chat-grid.layout-1 { grid-template-columns: 1fr; }
+.chat-grid.layout-2 { grid-template-columns: 1fr 1fr; }
+.chat-grid.layout-3 { grid-template-columns: 1fr 1fr 1fr; }
+.chat-grid.layout-4 { grid-template-columns: 1fr 1fr; grid-template-rows: 1fr 1fr; }
+
+.empty-state {
+    grid-column: 1 / -1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    color: var(--text-secondary);
+    text-align: center;
+}
+
+.empty-state h2 {
+    color: var(--text-primary);
+    margin-bottom: 8px;
+    font-weight: 400;
+}
+
+/*/ Model Chat Column /*/
+.model-column {
+    background: var(--panel-bg);
+    border: 1px solid var(--panel-border);
+    border-radius: 12px;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+.column-header {
+    padding: 16px;
+    border-bottom: 1px solid var(--panel-border);
+    font-weight: 500;
+    font-size: 14px;
+    display: flex;
+    align-items: center;
+    background: #111;
+}
+
+.column-clear-btn {
+    background: transparent;
+    border: none;
+    color: var(--text-secondary);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 6px;
+    border-radius: 6px;
+    transition: all 0.2s ease;
+}
+
+.column-clear-btn:hover {
+    color: #ff4444;
+    background: rgba(255, 68, 68, 0.1);
+}
+
+.column-body {
+    flex: 1;
+    padding: 16px;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.message {
+    padding: 14px 18px;
+    border-radius: 8px;
+    line-height: 1.6;
+    font-size: 14px;
+    animation: fadeIn 0.2s ease;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(5px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.message.user {
+    background: var(--user-msg);
+    align-self: flex-end;
+    border-bottom-right-radius: 2px;
+    max-width: 85%;
+    color: #e5e5e5;
+}
+
+.message.ai {
+    background: var(--ai-msg);
+    border: 1px solid var(--panel-border);
+    align-self: flex-start;
+    border-bottom-left-radius: 2px;
+    max-width: 95%;
+    color: #d4d4d4;
+}
+
+.message.error {
+    background: rgba(239, 68, 68, 0.1);
+    color: #fca5a5;
+    align-self: flex-start;
+    border-left: 3px solid #ef4444;
+    border-bottom-left-radius: 2px;
+    font-size: 13px;
+    font-family: monospace;
+}
+
+/*/ Input Area /*/
+.input-container {
+    position: absolute;
+    bottom: 24px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 80%;
+    max-width: 800px;
+    border-radius: 12px;
+    padding: 8px;
+    background: #141414;
+    border: 1px solid var(--panel-border);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+}
+
+.input-wrapper {
+    display: flex;
+    align-items: flex-end;
+    border-radius: 8px;
+    padding: 4px;
+}
+
+textarea {
+    flex: 1;
+    background: transparent;
+    border: none;
+    color: var(--text-primary);
+    font-family: inherit;
+    font-size: 15px;
+    padding: 14px 16px;
+    resize: none;
+    max-height: 200px;
+    outline: none;
+    line-height: 1.5;
+}
+
+textarea::placeholder {
+    color: #666;
+}
+
+.send-btn {
+    background: #fff;
+    color: #000;
+    border: none;
+    width: 40px;
+    height: 40px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    margin: 4px;
+    transition: all 0.2s ease;
+}
+
+.send-btn:hover:not(:disabled) {
+    background: #e5e5e5;
+    transform: scale(1.02);
+}
+
+.send-btn:disabled {
+    background: #262626;
+    color: #555;
+    cursor: not-allowed;
+}
+
+/*/ Custom Scrollbar /*/
+::-webkit-scrollbar {
+    width: 6px;
+}
+::-webkit-scrollbar-track {
+    background: transparent;
+}
+::-webkit-scrollbar-thumb {
+    background: #333;
+    border-radius: 10px;
+}
+::-webkit-scrollbar-thumb:hover {
+    background: #555;
+}
+
+/*/ Sidebar Settings Button /*/
+.settings-btn {
+    display: flex; align-items: center; justify-content: center; gap: 10px;
+    width: 100%; padding: 12px; margin-top: 20px;
+    background: transparent; border: 1px solid var(--panel-border);
+    color: var(--text-primary); border-radius: 8px;
+    cursor: pointer; transition: all 0.2s ease;
+    font-family: inherit; font-size: 14px;
+}
+.settings-btn:hover { background: rgba(255, 255, 255, 0.05); }
+
+/*/ Modal Styles /*/
+.modal-overlay {
+    position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(0, 0, 0, 0.8); backdrop-filter: blur(5px);
+    display: flex; align-items: center; justify-content: center;
+    z-index: 100; opacity: 0; pointer-events: none; transition: opacity 0.2s ease;
+}
+.modal-overlay.active { opacity: 1; pointer-events: auto; }
+.modal-content {
+    background: var(--panel-bg); border: 1px solid var(--panel-border);
+    border-radius: 12px; width: 420px; max-width: 90%;
+    box-shadow: 0 20px 50px rgba(0,0,0,0.8); display: flex; flex-direction: column;
+}
+.modal-header {
+    padding: 18px 24px; border-bottom: 1px solid var(--panel-border);
+    display: flex; justify-content: space-between; align-items: center;
+}
+.modal-header h2 { font-size: 16px; font-weight: 500; }
+.close-btn { background: none; border: none; color: var(--text-secondary); font-size: 24px; cursor: pointer; }
+.close-btn:hover { color: #fff; }
+.modal-body { padding: 24px; }
+.form-group { display: flex; flex-direction: column; gap: 8px; }
+.form-group label { font-size: 13px; font-weight: 500; color: var(--text-secondary); }
+.form-group input {
+    background: var(--bg-color); border: 1px solid var(--panel-border);
+    color: #fff; padding: 12px 14px; border-radius: 6px; font-family: inherit; font-size: 14px; outline: none;
+}
+.form-group input:focus { border-color: #555; }
+.help-text { font-size: 11px; color: #666; margin-top: 4px;}
+.modal-footer { padding: 16px 24px; border-top: 1px solid var(--panel-border); display: flex; justify-content: flex-end; }
+.primary-btn { background: #fff; color: #000; border: none; padding: 10px 18px; border-radius: 6px; font-weight: 500; cursor: pointer; transition: 0.2s; font-family: inherit;}
+.primary-btn:hover { background: #e5e5e5; }
+
+/*/ Typing Indicator /*/
+.typing-indicator {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    padding: 12px 16px;
+    background: var(--panel-bg);
+    border-radius: 12px;
+    border-bottom-left-radius: 4px;
+    align-self: flex-start;
+    width: fit-content;
+    margin-bottom: 12px;
+    border: 1px solid var(--panel-border);
+}
+
+.typing-dot {
+    width: 6px;
+    height: 6px;
+    background-color: var(--text-secondary);
+    border-radius: 50%;
+    animation: typing 1.4s infinite ease-in-out both;
+}
+
+.typing-dot:nth-child(1) { animation-delay: -0.32s; }
+.typing-dot:nth-child(2) { animation-delay: -0.16s; }
+.typing-dot:nth-child(3) { animation-delay: 0s; }
+
+@keyframes typing {
+    0%, 80%, 100% { transform: scale(0.4); opacity: 0.5; }
+    40% { transform: scale(1); opacity: 1; }
+}
+
+/*/ Shake Animation for Modal /*/
+@keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    10%, 30%, 50%, 70%, 90% { transform: translateX(-5px); }
+    20%, 40%, 60%, 80% { transform: translateX(5px); }
+}
+
+.shake {
+    animation: shake 0.4s;
+}
+
+/*/ Markdown and Code Formatting /*/
+.markdown-body {
+    font-size: 14px;
+    line-height: 1.6;
+    color: inherit;
+}
+
+.markdown-body p {
+    margin: 0 0 12px 0;
+}
+
+.markdown-body p:last-child {
+    margin-bottom: 0;
+}
+
+.markdown-body code {
+    background: rgba(255, 255, 255, 0.1);
+    padding: 2px 4px;
+    border-radius: 4px;
+    font-family: ui-monospace, SFMono-Regular, Consolas, "Liberation Mono", Menlo, monospace;
+    font-size: 0.9em;
+}
+
+.markdown-body pre {
+    background: #1e1e1e;
+    padding: 12px;
+    border-radius: 8px;
+    overflow-x: auto;
+    margin: 12px 0;
+    border: 1px solid var(--panel-border);
+}
+
+.markdown-body pre code {
+    background: transparent;
+    padding: 0;
+    color: #d4d4d4;
+    font-size: 13px;
+}
+
+.markdown-body a {
+    color: #3b82f6;
+    text-decoration: none;
+}
+
+.markdown-body a:hover {
+    text-decoration: underline;
+}
+
+.markdown-body ul, .markdown-body ol {
+    margin-top: 0;
+    margin-bottom: 12px;
+    padding-left: 20px;
+}
